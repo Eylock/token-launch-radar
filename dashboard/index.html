@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar — which pre-token protocol is worth farming next</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <p class="kicker">Token Launch Radar</p>
+      <h1>Which pre-token protocol is worth farming next?</h1>
+      <p class="lede">Every protocol in the snapshot that records no token, ranked by what its
+      token would be worth if it launched today — and the exact steps to farm it.</p>
+    </div>
+    <dl class="stats" id="stats"></dl>
+  </div>
+  <p class="formula">Model <strong>radar-3</strong> &nbsp;·&nbsp; implied value = TVL × category multiple × growth × maturity × breadth — every factor read from the snapshot itself, no hardcoded names.</p>
+</header>
+
+<section class="controls" aria-label="Filter and sort">
+  <label>Search <input id="q" type="search" placeholder="Protocol or category…" autocomplete="off"></label>
+  <label>Category <select id="cat"><option value="">All categories</option></select></label>
+  <label class="check"><input id="wl" type="checkbox"> Watchlist only</label>
+  <label>Sort by
+    <select id="sort">
+      <option value="implied">Implied value ↓</option>
+      <option value="tvl">TVL ↓</option>
+      <option value="growth">7-day growth ↓</option>
+      <option value="age">Age ↓</option>
+      <option value="name">Name A–Z</option>
+    </select>
+  </label>
+  <p class="count" id="count"></p>
+</section>
+
+<main>
+  <section id="detail" class="detail" hidden></section>
+  <table class="board" id="board">
+    <thead>
+      <tr>
+        <th data-sort="rank">#</th>
+        <th data-sort="name">Protocol</th>
+        <th data-sort="category">Category</th>
+        <th data-sort="tvl" class="num">TVL</th>
+        <th data-sort="growth" class="num">7d</th>
+        <th data-sort="age" class="num">Age</th>
+        <th data-sort="chains" class="num">Chains</th>
+        <th data-sort="implied" class="num">Implied value</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p class="empty" id="empty" hidden>No protocol matches this filter.</p>
+</main>
+
+<section class="method" id="method">
+  <h2>How the ranking is built</h2>
+  <p>The snapshot holds 758 protocols at or above $5M of TVL, fetched 2026-11-14.
+  A protocol is <strong>rankable</strong> when its record carries no token (market cap,
+  CoinGecko id and symbol all empty) and it is not a wrapped, staked or bridged
+  product of a token that already trades. That gives <span id="rankableCount"></span>
+  protocols — the 40 on the house watchlist plus every other rankable one, above
+  or below the $50M floor. Protocols whose token already trades are set aside;
+  they are not ranked, because there is no launch left to value.</p>
+  <ol class="factors">
+    <li><strong>Category multiple.</strong> The median market-cap-to-TVL ratio of the
+    snapshot's own live-token protocols in the same category (at least 5
+    comparables, otherwise the overall median of <span id="overallMedian"></span>),
+    capped at 1.0. Lending trades near 0.13× TVL, bridges near 0.56–0.75× — a
+    flat multiple would price them as the same business.</li>
+    <li><strong>Growth.</strong> One week of TVL change, clamped to −60%…+120% and
+    half-weighted, so a single hot week cannot carry the whole score.</li>
+    <li><strong>Maturity.</strong> 0.5 for a newborn, rising to 1.0 over four years
+    with no token — survival is evidence.</li>
+    <li><strong>Breadth.</strong> +5% per extra chain, capped at ten, because
+    distribution widens the future holder base.</li>
+  </ol>
+  <h3>Calibration — median mcap / TVL by category</h3>
+  <table class="calib" id="calib">
+    <thead><tr><th>Category</th><th class="num">Comparables</th><th class="num">Median multiple</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <p class="caveat">Backtest (leave-one-out on the snapshot's 119 live-token protocols):
+  the calibrated multiple predicts market cap with median log error
+  <span id="btCal"></span>, against <span id="btFlat"></span> for a flat 0.25× and
+  <span id="btFull"></span> for the full formula — a typical prediction is still
+  off by about 5×, because live mcap/TVL ratios are that dispersed. The model
+  is a ranking prior, not a price forecast, and the implied value is this
+  entry's own claim, never a launch prediction.</p>
+</section>
+
+<footer class="foot">
+  <p>Snapshot 2026-11-14, DefiLlama data via the sealed snapshot. A protocol is
+  described as recording no token — the record is not proof it has none. Gas
+  figures in farm plans are planning estimates at the snapshot date, not live
+  quotes. Nothing on this page is investment advice.</p>
+</footer>
+<noscript><p class="noscript">This dashboard renders from its data file with JavaScript; enable JavaScript to see the board.</p></noscript>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
